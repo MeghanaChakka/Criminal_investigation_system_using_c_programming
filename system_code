@@ -1,0 +1,1102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+/* treenode_t represents data type of a tree node */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include<stdbool.h>
+
+#define MAX_TYPE_LEN 30
+#define MAX_MONTH_LEN 10
+#define MAX_WITNESSES_LEN 30
+#define MAX_PLACE_LEN 30
+#define MAX_ITEM_LEN 40
+#define MAX_TREE_DEPTH 100
+#define V 5
+typedef int (*compfn)(const void*, const void*);
+typedef struct casedata
+{
+    char case_name[10];
+   int case_ID;
+   int day;
+    char month[50];
+    int month_num;
+    int year;
+    char status[20];
+    char place[50];
+   char case_detail[1000];
+   char investigator_name[100];
+   long suspect_ID;
+    char gender[10];
+    char build[10];
+    char complexion[10];
+    char height[10];
+
+}data_t;
+struct casedata s1,s2;
+
+struct casedata info[40];
+
+typedef struct treenode
+{
+   struct casedata data;
+struct treenode *left;
+struct treenode *right;
+}treenode_t;
+struct treenode t1;
+
+typedef struct primary_suspect
+{
+    char suspect_n[40];
+    int clue;
+}primary_suspect_t;
+
+primary_suspect_t detail[20];
+//Function to insert a case Record int eh dat
+
+
+ struct casedata insert_case_record()
+{
+
+    printf("\nEnter the details of the Record you want to insert");
+    printf("\nEnter the case ID");
+    scanf("\n%d",&s1.case_ID);
+    printf("\nEnter the date of the case in format dd/mm/yy");
+    scanf("%d/%d/%d",&s1.day,&s1.month,&s1.year);
+    printf("\nEnter the Place of the crime");
+    scanf("%s",s1.place);
+    printf("\nEnter the Case Detail");
+    scanf("%s",s1.case_detail);
+    printf("\nEnter the Investigator Name");
+    scanf("%s",s1.investigator_name);
+    printf("\nEnter the Suspect ID");
+    scanf("%ld",&s1.suspect_ID);
+    printf("\nEnter the gender of the Suspect");
+    gets(s1.gender);
+    printf("\nEnter the Build of the Suspect low/medium/high");
+    gets(s1.build);
+    printf("\nEnter the complexion of the Suspect low/medium");
+    gets(s1.complexion);
+    printf("\nEnter the height of the Suspect short/medium/tall");
+    gets(s1.height);
+    return s1;
+}
+
+//Function to find a case Record
+
+
+
+treenode_t *create_node(struct casedata s)
+{
+   treenode_t *node;
+
+   node = (treenode_t *) malloc(sizeof(treenode_t));
+   if (node == NULL)
+   {
+       fprintf(stderr, "malloc failed\n");
+       exit(1);
+   }
+
+
+   strcpy(node->data.case_name, s.case_name);
+   node->data.case_ID=s.case_ID;
+   node->data.day=s.day;
+    strcpy(node->data.month,s.month);
+    node->data.year=s.year;
+    strcpy(node->data.status,s.status);
+    strcpy(node->data.place,s.place);
+   strcpy(node->data.case_detail,s.case_detail);
+   strcpy(node->data.investigator_name,s.investigator_name);
+   node->data.suspect_ID=s.suspect_ID;
+    strcpy(node->data.gender,s.gender);
+    strcpy(node->data.build,s.build);
+    strcpy(node->data.complexion,s.complexion);
+    strcpy(node->data.height,s.height);
+
+   node->left = NULL;
+   node->right = NULL;
+
+   return node;
+}
+
+/* Notice : this is IN-ORDER TRAVERSAL because
+ * the 'root' node comes IN-BETWEEN the LEFT and RIGHT
+ * Subtrees.
+ */
+void print_tree(treenode_t *root)
+{
+   /* Base case of recursion : If root is NULL, do nothing */
+   if (root == NULL)
+      return;
+
+   /* Recursive definition: print_tree calls itself (twice).
+    * IN-ORDER because ROOT is printed between LEFT and RIGHT
+    */
+
+
+   print_tree(root->left);
+
+   printf("%s",root->data.case_name);
+   printf("%d",root->data.case_ID);
+   printf("\n%d\%s\%d",root->data.day,root->data.month,root->data.year);
+   printf("Status of the case is:%d",root->data.status);
+   printf("Place:%s",root->data.place);
+   printf("CASE DETAILS:%s",root->data.case_detail);
+   printf("Investigator_name%s",root->data.investigator_name);
+   printf("Suspect Details:");
+   printf("Suspect_ID:%d",root->data.suspect_ID);
+    printf("Gender:%s",root->data.gender);
+    printf("Build:%s",root->data.build);
+    printf("Complexion:%s",root->data.complexion);
+    printf("Height:%s",root->data.height);
+
+   print_tree(root->right);
+}
+/* Recursive variant of insert function */
+treenode_t *recur_insert_node(treenode_t *root, struct casedata  s)
+{
+  /* Handle  empty tree as a special case */
+  if (root == NULL)
+  {
+     root = create_node(s);
+     return root;
+  }
+
+  /* We come here, if non-empty tree */
+  if (root->data.day == s.day && root->data.month_num == s.month_num && root->data.year == s.year)
+    printf("The value is already existing. Not adding\n");
+  else if (root->data.year > s.year || root->data.year == s.year && root->data.month_num > s.month_num || root->data.year == s.year && root->data.month_num == s.month_num && root->data.day > s.day)
+     root->right = recur_insert_node(root->right, s);
+  else
+     root->left = recur_insert_node(root->left, s);
+  return root;
+}
+
+//Function to find a case Record
+
+
+treenode_t* search(treenode_t ** root, int day,int month,int year)
+ {
+ if(!root) {
+   return NULL;
+  }
+ if((*root)->data.day == day && (*root)->data.month_num == month && (*root)->data.year == year)
+    {
+   return *root;
+    }
+ else if((*root)->data.year > year || (*root)->data.year == year && (*root)->data.month > month || (*root)->data.year == year && (*root)->data.month_num == month && (*root)->data.day > day)
+    {
+    search(&((*root)->right),day,month,year);
+    }
+ else
+    {
+    search(&((*root)->left), day, month,year);
+    }
+}
+
+//Function to check the status of the Case
+
+void check_status(treenode_t *root)
+{
+     if(strcmp(root->data.status,"CLOSED")==0)
+     {
+         printf("The Status of the current case is CLOSED ////");
+
+     }
+     else if(strcmp(root->data.status,"UNDER_INVESTIGATION")==0)
+     {
+         printf("The status of the current case is: UNDER INVESTIGATION..........");
+     }
+     else if(strcmp(root->data.status,"FILED")==0)
+     {
+         printf("The status of the current case is NEWLY FILED......");
+     }
+
+}
+
+//Function to print a single Case Record Details
+
+void print_record(treenode_t *root)
+{
+   printf("%s",root->data.case_name);
+   printf("%d",root->data.case_ID);
+   printf("\n%d\%s\%d",root->data.day,root->data.month,root->data.year);
+   printf("Status of the case is:%d",root->data.status);
+   printf("Place:%s",root->data.place);
+   printf("CASE DETAILS:%s",root->data.case_detail);
+   printf("Investigator_name%s",root->data.investigator_name);
+   printf("Suspect Details:");
+   printf("Suspect_ID:%d",root->data.suspect_ID);
+    printf("Gender:%s",root->data.gender);
+    printf("Build:%s",root->data.build);
+    printf("Complexion:%s",root->data.complexion);
+    printf("Height:%s",root->data.height);
+
+}
+int compare(primary_suspect_t *elem1, primary_suspect_t *elem2)
+{
+   if ( elem1->clue < elem2->clue)
+      return -1;
+
+   else if (elem1->clue > elem2->clue)
+      return 1;
+
+   else
+      return 0;
+}
+
+void printarray(void)
+{
+   int i;
+
+   for (i = 0; i < 5; i++)
+      printf("%d:  Number %d is a %s\n",i+1, detail[i].suspect_n);
+}
+
+
+
+//Function to predict the criminal using suspect prediction Algorithm
+void predict_primary_suspect(treenode_t *root)
+{
+    int c, n;
+    int clues[40];
+    char suspect_name[40];
+    suspect_name[40]={"Aaron","Hank","Abagnale", "Frank","Abbey", "Edward","Abel", "Reuben","Abelson", "Hal","Abourezk", "James","Abrams", "Creighton","Ace", "Jane","Acton", "John","Adams", "Abigail","Douglas","Henry","John","Quincy","Samuel","Scott","Jane","Addison","Joseph","Adorno", "Theodor"
+//,"Adler", "Alfred"
+//};
+
+
+ for(c = 0; c <= 20; c++)
+  {
+    n = rand() % 100 + 1;
+    clues[c]=n;
+  }
+int i;
+  for(i=0;i<=20;i++)
+  {
+      strcpy(detail[i].suspect_n,suspect_name[i]);
+      detail[i].clue=clues[i];
+  }
+   qsort((void *) &detail,20,sizeof(primary_suspect_t ),(compfn)compare );                  // Pointer to compare function
+
+   printf("\nthe List of the primary suspects are:\n");
+   printarray();
+
+
+
+}
+
+void printSolution(int path[]);
+
+/* A utility function to check if the vertex v can be added at index 'pos'
+   in the Hamiltonian Cycle constructed so far (stored in 'path[]') */
+bool isSafe(int v, bool graph[V][V], int path[], int pos)
+{
+    /* Check if this vertex is an adjacent vertex of the previously
+       added vertex. */
+    if (graph [ path[pos-1] ][ v ] == 0)
+        return false;
+        int i;
+
+    /* Check if the vertex has already been included.
+      This step can be optimized by creating an array of size V */
+    for (i = 0; i < pos; i++)
+       {
+           if (path[i] == v)
+            return false;
+
+    else
+        return true;
+       }
+}
+
+/* A recursive utility function to solve hamiltonian cycle problem */
+bool hamCycleUtil(bool graph[V][V], int path[], int pos)
+{
+    /* base case: If all vertices are included in Hamiltonian Cycle */
+    if (pos == V)
+    {
+        // And if there is an edge from the last included vertex to the
+        // first vertex
+        if ( graph[ path[pos-1] ][ path[0] ] == 1 )
+           return true;
+        else
+          return false;
+    }
+
+    // Try different vertices as a next candidate in Hamiltonian Cycle.
+    // We don't try for 0 as we included 0 as starting point in in hamCycle()
+    int v;
+    for (v = 1; v < V; v++)
+    {
+        /* Check if this vertex can be added to Hamiltonian Cycle */
+        if (isSafe(v, graph, path, pos))
+        {
+            path[pos] = v;
+
+            /* recur to construct rest of the path */
+            if (hamCycleUtil (graph, path, pos+1) == true)
+                return true;
+
+            /* If adding vertex v doesn't lead to a solution,
+               then remove it */
+            path[pos] = -1;
+        }
+    }
+
+    /* If no vertex can be added to Hamiltonian Cycle constructed so far,
+       then return false */
+    return false;
+}
+
+/* This function solves the Hamiltonian Cycle problem using Backtracking.
+  It mainly uses hamCycleUtil() to solve the problem. It returns false
+  if there is no Hamiltonian Cycle possible, otherwise return true and
+  prints the path. Please note that there may be more than one solutions,
+  this function prints one of the feasible solutions. */
+/*bool hamCycle(bool graph[V][V])
+{
+    int *path = new int[V];
+    int i;
+
+    for ( i = 0; i < V; i++)
+        path[i] = -1;
+
+    /* Let us put vertex 0 as the first vertex in the path. If there is
+       a Hamiltonian Cycle, then the path can be started from any point
+       of the cycle as the graph is undirected */
+   /* path[0] = 0;
+    if ( hamCycleUtil(graph, path, 1) == false )
+    {
+        printf("\nSolution does not exist");
+        return false;
+    }
+
+    printSolution(path);
+    return true;
+}
+
+
+/* A utility function to print solution */
+/*void printSolution(int path[])
+{
+    printf ("Solution Exists:"
+            " Following is one Hamiltonian Cycle \n");
+    for (int i = 0; i < V; i++)
+        printf(" %d ", path[i]);
+
+    // Let us print the first vertex again to show the complete cycle
+    printf(" %d ", path[0]);
+    printf("\n");
+}
+*/
+void main()
+{
+
+   treenode_t *root = NULL;
+   int i;
+   int choice,choice1;
+   char c;
+   int records;
+  struct casedata s3,s4;
+   int day1,month1,year1;
+   print_tree(root);
+   do
+   {   printf("MAIN MENU");
+       printf("\n1. Personal Crimes");
+       printf("\n2. Property Crimes");
+       printf("\n3. Inchoate Crimes");
+       printf("\n4. Statutory Crimes");
+       printf("\n5. Exit");
+       printf("Enter the preferred choice");
+       scanf("%d",&choice);
+
+       switch(choice)
+       {
+        case 1:    do
+                 {
+
+                   printf("\na. Assault");
+                   printf("\nb. False Imprisonment");
+                   printf("\nc. Kidnapping");
+                   printf("\nd. Homicide");
+                   printf("\ne. Exit");
+                   printf("Enter the preferred type ");
+                   scanf("%c",&c);
+                   switch(c)
+                   {
+                       case 'a':
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Assault Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Create Database ");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {
+                                     case 1: s3 = insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root ,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            int i;
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                 break;
+
+
+                     case 'b':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to False Impisonment Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {
+                                     case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            int i;
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                               break;
+
+                case 'c':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Kidnapping Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {
+                                     case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            int i;
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+                                 break;
+
+                case 'd':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Homicide Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {
+                                     case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                  break;
+
+
+             case 'e': exit(0);
+                         break;
+
+                   }
+                   }while(c!='e');
+
+                 break;
+
+    case 2:
+		//Property Crimes
+                   do
+                 {
+
+                   printf("\na. Burglery");
+                   printf("\nb. Robery");
+                   printf("\nc. Theft");
+                   printf("\nd. Exit");
+                   printf("Enter the preferred type ");
+                   scanf("%c",&c);
+                   switch(c)
+                   {
+
+
+
+                    case 'a':
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Burglery Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                 break;
+
+                case 'b':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Robbery Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {  case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                break;
+             case 'c':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Theft Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                 break;
+              case 'd': exit(0);
+                   }
+                   }while(c!='d');
+
+                 break;
+    case 3:
+	//Inchoate Crimes
+	   do
+                 {
+
+                   printf("\na. Attemp");
+                   printf("\nb. Solicitation");
+                   printf("\nc. Conspiracy");
+                   printf("\nd. Homicide");
+                   printf("\ne. Exit");
+                   printf("Enter the preferred type ");
+                   scanf("%c",&c);
+                   switch(c)
+                   {
+
+
+
+                    case 'a':
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Attempt Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {
+                                     case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                break;
+
+          case 'b':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Solicitation Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+                                 break;
+                case 'c':
+
+                                 do
+                                 {
+
+                                 printf("\nWelcome to Conspiracy Cases Database");
+                                 printf("\nWhat do you want to do???");
+                                 printf("\n1. Insert a case Record");
+                                 printf("\n2. Find a case Record");
+                                 printf("\n3. Delete a case Record");
+                                 printf("\n4. Check Case Status");
+                                 printf("\n5. Print Database");
+                                 printf("\n6. Print specific Case Record");
+                                 printf("\n7. Predict Criminal Using Suspect Prediction Algorithm");
+                                 printf("\n8. Exit This Database");
+                                 printf("\n Enter the preferred Operation");
+                                 scanf("%d",&choice1);
+                                 switch(choice1)
+                                 {case 1: s3=insert_case_record();
+                                              root=recur_insert_node(root,s3);
+                                              break;
+
+                                     case 2:printf("Enter the date of the case record to be found");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                              print_record(root);
+                                              break;
+                                     case 3:printf("Enter the number of records you want to enter into the database");
+                                            scanf("%d",&records);
+                                            for(i=0;i<records;i++)
+                                            {
+                                                s4=insert_case_record();
+                                                root=recur_insert_node(root,s4);
+                                                printf("Record%d inserted",i);
+                                            }
+                                            print_tree(root);
+                                            break;
+
+                                     case 4:printf("Enter the date of the case record whose status is to be found");
+                                            scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             check_status(root);
+                                             break;
+
+                                     case 5:printf("The following are the Record presently in the database");
+                                              print_tree(root);
+                                     case 6:printf("Enter the date of the case record whose details is to be printed");
+                                             scanf("%d/%d/%d",&day1,&month1,&year1);
+                                             root=search(&root,day1,month1,year1);
+                                             printf("The details of the Record are as follows");
+                                             print_record(root);
+                                             break;
+                                     case 7:
+                                     case 8:exit(0);
+
+                                 }
+                                 }while(choice1!=8);
+
+                                   break;
+
+                 case 'd': exit(0);
+                   }
+
+                }while(c!='d');
+
+            break;
+
+   case 4: exit(0);
+        break;
+    }
+
+}while(choice!=4);
+
+    }
+
+
+
+
+
+
+
+
+
+
